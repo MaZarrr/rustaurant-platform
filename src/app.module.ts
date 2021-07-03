@@ -12,7 +12,6 @@ import { TokenModule } from './token/token.module';
   imports: [
     UserModule, 
     SmsModule,
-    // TokenModule,
     ProductOrderModule,
     MongooseModule.forRoot('mongodb://localhost:27017/mydb'), 
     EventEmitterModule.forRoot({

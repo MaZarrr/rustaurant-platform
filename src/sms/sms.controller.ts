@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { TokenService } from "src/token/token.service";
+import { application } from "src/Services/Application";
 import { getRandomArbitrary } from "src/utils";
 import { SmsService } from "./sms.service";
 
@@ -10,13 +10,13 @@ export class SmsController extends SmsService {
     public phoneNumber: number;
     public textCode: number;
     public checkNumder: boolean = false;
-    public tokenService: TokenService;
     constructor(private eventEmitter: EventEmitter2) {super()}
 
     @Post()
     public sendCode(@Body() phone: any) {
         if(this.checkNumder === false) {
             this.phoneNumber = phone?.phoneNumber
+            application.phone = String(this.phoneNumber);
             this.textCode = getRandomArbitrary(1000, 9999)
             this.sendSms(phone?.phoneNumber, this.textCode)
         }
@@ -24,17 +24,31 @@ export class SmsController extends SmsService {
 
     @Post('checked')
     public statusRegistration(@Body() text: any){
-        // console.log(this.textCode, "this.textCode ---------------");
-        
         if(Number(text?.codeNumber) === this.textCode) {
-        //    console.log(this.textCode, "this.textCode");
-        //    console.log(this.phoneNumber, "this.phoneNumber");
-           this.checkNumder = true
+            this.checkNumder = true
+            application.checkNumder = this.checkNumder
+            return {
+                isAuth: true,
+                text: "Вы успешно зарегестрированы!",
+                phone: String(this.phoneNumber)
+            }
 
-           this.eventEmitter.emit(
-            'valid:number',
-            { isActivated: this.checkNumder, phone: this.phoneNumber }
-          )
+
+        //    this.eventEmitter.emit(
+        //     'valid:number',
+        //     { isActivated: this.checkNumder, phone: String(this.phoneNumber) }
+        //   )
+
+        //   return {
+        //     isAuth: true,
+        //     text: "Вы успешно зарегестрированы!",
+        //     phone: String(this.phoneNumber)
+        // }
+       }
+
+       return {
+           isAuth: false,
+           text: "Введите корректный телефон."
        }
     }
 }

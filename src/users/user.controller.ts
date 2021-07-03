@@ -1,9 +1,11 @@
-import { Controller, Get, Query, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Query, Post, Body, Put, Param, Delete, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user-dto';
 import { IUser } from './interfaces/user.interface';
 import { OnEvent } from '@nestjs/event-emitter';
+import { application } from 'src/Services/Application';
+import { Response } from 'express'
 
 @Controller('register')
 export class UserController {
@@ -11,16 +13,21 @@ export class UserController {
   public isAuth: boolean
   public phoneCheck: number
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    ) {}
 
-  @OnEvent('valid:number')
-  public async login(payload){
-      console.log("@OnEvent('valid:number')", payload);
-      if(payload.isActivated) {
-        console.log("typeOf ==== ", typeof payload.phone);
-        this.userService.registration(payload)
+  // @OnEvent('valid:number')
+  @Post('/status')
+  public async login(@Res({ passthrough: true }) response: Response){      
+      if(application.checkNumder) {
+        console.log("if(application.checkNumder) { trueeeeee  ");
+        const usesrData = await this.userService.registration({ phone: application.phone, isActivated: application.checkNumder })
+        response.cookie('refreshToken', usesrData.refreshToken, {maxAge:  3})
+        
+        return 
       }
-
+      return "ВВедите корректный телефон"
   }
 
   @Get()
@@ -32,14 +39,14 @@ export class UserController {
     }
   }
 
-  @Get()
-  public async getUsers() {
-    try {
+  // @Post('/status')
+  // public async getUsers(phone) {
+  //   try {
+  //    return this.userService.findUser(phone)
+  //   } catch(err) {
 
-    } catch(err) {
-
-    }
-  }
+  //   }
+  // }
 
   @Get()
   async findAll(): Promise<IUser[]> {
@@ -61,40 +68,3 @@ export class UserController {
     return `This action removes a #${id} cat`;
   }
 }
-
-
-// import { ListAllEntities } from './dto/list-all-entities.dto';
-// import { ConnectedSocket } from '@nestjs/websockets';
-
-// type Message = {
-//   action: string
-//   to: string
-//   text: string
-// }
-// public socket: any = new WebSocket("wss://tanak.moizvonki.ru/wsapi/");
-
-  // @Post()
-  // async registration(
-  //   @Body() createUserDto: CreateUserDto, 
-  //   // @ConnectedSocket() client: Socket
-  //   ) {
-
-  //     try {
-  //       this.userService.registration()
-  //     } catch(err) {
-
-  //     }
-  //     // принятие номера
-  //     // проверка в базе
-  //     // подключение к сокету и отправка sms с рандомным числом
-  //     // сохранение рандомого числа
-  //     // подключение к сокету и отправка sms с рандомным числом - this.phoneCheck
-  //     if(this.phoneCheck === createUserDto.ckeckedNum) {
-  //       // успешная аунтификация
-  //       this.isAuth = true
-  //       return {isAuth: this.isAuth, } 
-  //     } else {
-  //       // не успешная аунтификация
-  //       return this.isAuth = false
-  //     }
-  // }

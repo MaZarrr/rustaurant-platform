@@ -1,42 +1,56 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TokenService } from 'src/token/token.service';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { IUser } from './interfaces/user.interface';
+import { ProductOrderService } from 'src/products/products.service';
+import { UserDto } from './dto/user-dto';
 
 @Injectable()
 export class UserService {
   public createUserDto: CreateUserDto;
-  // private tokenService
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {
-    // this.tokenService = tokenService
-  }
+  
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private productService: ProductOrderService,
+    private tokenService: TokenService
+    ) {}
 
-  public async registration(payload: CreateUserDto) {
-    console.log("registration payload", payload);
+  public async registration(payload): Promise<any> {
+    console.log("payload registration user service", payload);
     
     if(payload.isActivated === true) {
-      console.log("payload.checkNumder === true == registration");
-      const createdUser = new this.userModel(payload)
-      // console.log("tokenService", this.tokenService);
+      const user = new this.userModel({
+        phone: payload.phone,
+        isActivated: payload.isActivated,
+        timestamp: new Date(),
+        age: ""
+      })
+      user.save()
       
-      // const tokens = this.tokenService.generateTokens(createdUser)
-      // this.tokenService.saveToken(createdUser.id, tokens.refreshToken)
-      // return {
-      //   ...tokens,
-      //   user: this.createUserDto
-      // }
-      // return createdUser.save()
+      console.log("createdUser === ", user);
+      const userDto = new UserDto(user._id, user.isActivated, user.phone)
+      const tokens = await this.tokenService.generateTokens({ ...userDto })
+      console.log(" token servise generate tokens", tokens);
+      this.tokenService.saveToken(userDto.id, tokens.refreshToken)
+      
+      return {
+        ...tokens,
+        user: userDto
+      }
     }
-
   }
 
-  async create(createUserDto: CreateUserDto): Promise<IUser> {
-    const createdUser = new this.userModel(createUserDto);
-    return createdUser.save();
-  }
+// async findUser(phone) {
+//   return await this.userModel.findOne(phone)
+// }
+
+//   async create(createUserDto: CreateUserDto): Promise<IUser> {
+//     const createdUser = new this.userModel(createUserDto);
+//     return createdUser.save();
+//   }
 
   async findAll(): Promise<IUser[]> {
     console.log(this.userModel.find().exec());
@@ -44,47 +58,3 @@ export class UserService {
     
   }
 }
-
-
-
-// constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
-// // async create(createCatDto: CreateCatDto): Promise<Cat> {
-// //   const createdCat = new this.catModel(createCatDto);
-// //   return createdCat.save();
-// // }
-// public async registration(payload?) {
-//   // const candidate = this.userModel.findOne({ phone: payload.phone })
-//   // if(candidate) {
-//   //   console.log("candidate", candidate);
-//   //   throw new Error(`Пользователь с таким телефоном ${payload.phone} уже существует!`)
-//   // }
-
-//   if(payload.checkNumder === true) {
-//     console.log("createeeeeee =====");
-//     const createdUser = new this.userModel({
-//       userId: 323232,
-//       ckeckedNum: 89231323,
-//       username: "sdsdsdsd",
-//       age: 23,
-//       password: "sd232323",
-//       phone: 89411234422,
-//       })
-
-//       return createdUser.save()
-//     // const user = await this.userModel.create({ ...this.createUserDto, phone: Number(payload.phone), userId: 'd23dfase2e2deasd2' })
-//     // console.log("user", user);
-//     // return user.save()
-//   }
-
-// @Injectable()
-// export class CatsService {
-//   private readonly cats: Array<Cat> = [];
-
-//   create(cat: Cat) {
-//     this.cats.push(cat);
-//   }
-
-//   findAll(): Cat[] {
-//     return this.cats;
-//   }
-// }

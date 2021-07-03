@@ -1,9 +1,11 @@
 export class CreateUserDto {
-  userId?: number | string
+  _id: number | string
   isActivated?: boolean
   // ckeckedNum?: number
   username?: string
   age?: number
   password?: string
-  phone?: number
+  products?: any
+  phone?: string
+  save?()
   }

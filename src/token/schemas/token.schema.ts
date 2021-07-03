@@ -1,15 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { User } from 'src/users/schemas/user.schema';
 
 export type TokenDocument = Token & Document
 
 @Schema()
 export class Token {
-    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
-    user: mongoose.Types.ObjectId;
-    // @Prop({ ref: 'User' })
 
-    @Prop()
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+    user: User;
+
+    @Prop( { required: true } )
     refreshToken: string;
 }
 
