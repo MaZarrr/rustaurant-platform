@@ -1,5 +1,5 @@
 export class ListAllEntities {
-    name?: string;
-    age?: number;
-    limit: number = 0;
-  }
+  name?: string;
+  age?: number;
+  limit: number = 0;
+}

@@ -1,70 +1,70 @@
-import { Controller, Get, Query, Post, Body, Put, Param, Delete, Res } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user-dto';
-import { IUser } from './interfaces/user.interface';
-import { OnEvent } from '@nestjs/event-emitter';
-import { application } from 'src/Services/Application';
-import { Response } from 'express'
+// import { Controller, Get, Query, Post, Body, Put, Param, Delete, Res } from '@nestjs/common';
+// import { UserService } from './user.service';
+// import { CreateUserDto } from './dto/create-user.dto';
+// import { UpdateUserDto } from './dto/update-user-dto';
+// import { IUser } from './interfaces/user.interface';
+// import { OnEvent } from '@nestjs/event-emitter';
+// import { application } from 'src/Services/Application';
+// import { Response } from 'express'
 
-@Controller('register')
-export class UserController {
-  
-  public isAuth: boolean
-  public phoneCheck: number
+// @Controller('register')
+// export class UserController {
 
-  constructor(
-    private userService: UserService,
-    ) {}
+//   public isAuth: boolean
+//   public phoneCheck: number
 
-  // @OnEvent('valid:number')
-  @Post('/status')
-  public async login(@Res({ passthrough: true }) response: Response){      
-      if(application.checkNumder) {
-        console.log("if(application.checkNumder) { trueeeeee  ");
-        const usesrData = await this.userService.registration({ phone: application.phone, isActivated: application.checkNumder })
-        response.cookie('refreshToken', usesrData.refreshToken, {maxAge:  3})
-        
-        return 
-      }
-      return "ВВедите корректный телефон"
-  }
+//   constructor(
+//     private userService: UserService,
+//     ) {}
 
-  @Get()
-  public async logout() {
-    try {
+//   // @OnEvent('valid:number')
+//   @Post('/status')
+//   public async login(@Res({ passthrough: true }) response: Response){
+//       if(application.checkNumder) {
+//         console.log("if(application.checkNumder) { trueeeeee  ");
+//         const usesrData = await this.userService.registration({ phone: application.phone, isActivated: application.checkNumder })
+//         response.cookie('refreshToken', usesrData.refreshToken, {maxAge:  3})
 
-    } catch(err) {
+//         return
+//       }
+//       return "ВВедите корректный телефон"
+//   }
 
-    }
-  }
+//   @Get()
+//   public async logout() {
+//     try {
 
-  // @Post('/status')
-  // public async getUsers(phone) {
-  //   try {
-  //    return this.userService.findUser(phone)
-  //   } catch(err) {
+//     } catch(err) {
 
-  //   }
-  // }
+//     }
+//   }
 
-  @Get()
-  async findAll(): Promise<IUser[]> {
-    return this.userService.findAll();
-  }
+//   // @Post('/status')
+//   // public async getUsers(phone) {
+//   //   try {
+//   //    return this.userService.findUser(phone)
+//   //   } catch(err) {
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return `This action returns a #${id} cat`;
-  }
+//   //   }
+//   // }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateCatDto: UpdateUserDto) {
-    return `This action updates a #${id} cat`;
-  }
+//   @Get()
+//   async findAll(): Promise<IUser[]> {
+//     return this.userService.findAll();
+//   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return `This action removes a #${id} cat`;
-  }
-}
+//   @Get(':id')
+//   findOne(@Param('id') id: string) {
+//     return `This action returns a #${id} cat`;
+//   }
+
+//   @Put(':id')
+//   update(@Param('id') id: string, @Body() updateCatDto: UpdateUserDto) {
+//     return `This action updates a #${id} cat`;
+//   }
+
+//   @Delete(':id')
+//   remove(@Param('id') id: string) {
+//     return `This action removes a #${id} cat`;
+//   }
+// }

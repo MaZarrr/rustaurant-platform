@@ -1,7 +1,7 @@
-import { Controller } from "@nestjs/common";
-import { TokenService } from "./token.service";
+// import { Controller } from "@nestjs/common";
+// import { TokenService } from "./token.service";
 
-@Controller()
-export class TokenController extends TokenService {
-    
-}
+// @Controller()
+// export class TokenController extends TokenService {
+
+// }

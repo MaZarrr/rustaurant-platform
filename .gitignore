@@ -292,6 +292,10 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 
+.prod.env
+.test.env
+.dev.env
+
 # GhostDoc plugin setting file
 *.GhostDoc.xml
 
