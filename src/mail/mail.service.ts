@@ -3,14 +3,19 @@ import { CONFIG_OPTIONS } from 'src/common/common.constants';
 import { EmailVars, MailModuleOptions } from './mail.interfaces';
 import * as FormData from 'form-data';
 import got from 'got';
+import * as SendGrid from '@sendgrid/mail';
+import { transformEmailData } from './teamplates/orderTeamplate';
+// require('dotenv').config();
 
 @Injectable()
 export class MailService {
   constructor(
     @Inject(CONFIG_OPTIONS)
     private readonly options: MailModuleOptions,
-  ) {}
-
+  ) {
+    SendGrid.setApiKey(process.env.SEND_GRID_API);
+  }
+    
   public async sendEmail(
     subject: string,
     template: string,
@@ -51,4 +56,21 @@ export class MailService {
       { key: 'username', value: email },
     ]);
   }
+
+
+  public async sendOrder(formDataOrderDto: any): Promise<void> {
+   
+    const emailData = transformEmailData(formDataOrderDto)
+    console.log("emailData___", emailData);
+    
+    SendGrid
+    .send(emailData)
+    .then(() => {}, error => {
+    console.error(error);
+
+    if (error.response) {
+        console.error(error.response.body)
+    }
+  })
+};
 }
