@@ -33,7 +33,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env',
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('dev', 'prod', 'test').required(),
@@ -49,6 +49,14 @@ import { MailerModule } from '@nestjs-modules/mailer';
         SMS_API_KEY: Joi.string().required(),
         SMS_USER_NAME: Joi.string().required(),
         SMS_API_URL: Joi.string().required(),
+        EMAIL_FROM: Joi.string().required(),
+        EMAIL_TO: Joi.string().required(),
+        EMAIL_API: Joi.string().required(),
+        SOCIAL_API: Joi.string().required(),
+        GROUP_ID: Joi.number().required(),
+        USER_ONE: Joi.number().required(),
+        USER_TWO: Joi.number().required(),
+        USER_THREE: Joi.number().required()
         // DB_TYPE: Joi.required(),
       }),
     }),
