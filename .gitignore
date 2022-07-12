@@ -295,6 +295,7 @@ FakesAssemblies/
 .prod.env
 .test.env
 .dev.env
+.env
 
 # GhostDoc plugin setting file
 *.GhostDoc.xml

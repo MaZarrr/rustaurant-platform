@@ -3,10 +3,10 @@ import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
-import cors from 'cors';
 import 'reflect-metadata';
 dotenv.config();
-import { JwtMiddleware } from './jwt/jwt.middleware';
+// import cors from 'cors';
+// import { JwtMiddleware } from './jwt/jwt.middleware';
 
 const optionsCors = {
   origin: "*",
@@ -23,6 +23,6 @@ async function bootstrap() {
   // app.use(cors(optionsCors));
   app.enableCors(optionsCors);
   // app.use(JwtMiddleware) function
-  await app.listen(3000);
+  await app.listen(3333, '0.0.0.0');
 }
 bootstrap();

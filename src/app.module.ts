@@ -27,12 +27,13 @@ import { CommonModule } from './common/common.module';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entities/payments.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env',
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('dev', 'prod', 'test').required(),
@@ -62,6 +63,12 @@ import { ScheduleModule } from '@nestjs/schedule';
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod' &&  process.env.NODE_ENV !== 'test',
       // logging: true,
+    }),
+    MailerModule.forRoot({
+      transport: `smtps://${process.env.EMAIL_FROM}:${process.env.EMAIL_API}@smtp.yandex.ru`,
+      defaults: {
+        from: `"WebWork" <${process.env.EMAIL_FROM}>`,
+      },
     }),
     // MongooseModule.forRoot(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`),
     GraphQLModule.forRoot({
