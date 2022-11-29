@@ -15,7 +15,9 @@ import { UserService } from './user.service';
 
 @Resolver((of) => User)
 export class UserResolver {
-  constructor(private readonly usersService: UserService) {}
+  constructor(
+    private readonly usersService: UserService
+    ) {}
 
   @Mutation((returns) => CreateAccountOutput)
   public async createAccount(
@@ -23,6 +25,19 @@ export class UserResolver {
   ): Promise<CreateAccountOutput> {
     return this.usersService.createAccount(createAccountInput);
   }
+
+  @Query((returns) => CreateAccountOutput)
+  async testFN(): Promise<CreateAccountOutput> {
+    console.log("await this.usersService.nameTest({})1", this.usersService.nameTest());
+    console.log("await this.usersService.nameTest({})2", this.usersService.nameTest());
+    // console.log("await this.usersService.nameTest({})3", await this.usersService.nameTest({})._subscribe);
+    // this.usersService.nameTest({}).subscribe((e) => {
+    //   console.log("eeeee______", e);
+      
+    // })
+    return this.usersService.nameTest();
+  }
+
 
   /**
    * login

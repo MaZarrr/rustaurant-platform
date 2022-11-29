@@ -23,7 +23,7 @@ export class PaymentService {
             { transactionId, restaurantId }: CreatePaymentInput
         ): Promise<CreatePaymentOutput> {
             try {
-                const restaurant = await this.restaurants.findOne(restaurantId)
+                const restaurant = await this.restaurants.findOne({ where: { id: restaurantId }});
                 if(!restaurant){
                     return {
                         ok: false,
@@ -63,7 +63,7 @@ export class PaymentService {
 
         public async getPayments(user: User): Promise<GetPaymentsOutput> {
             try {
-                const payments = await this.payments.find({ user })
+                const payments = await this.payments.find({ where: { userId: user.id } })
                 return {
                     ok: true,
                     payments
@@ -79,10 +79,9 @@ export class PaymentService {
         // https://github.com/typeorm/typeorm/blob/master/docs/find-options.md   // !!!
         @Interval(225000) // находим всех не оплаченных
         public async checkPromotedRestaurants() {
-            const restaurants = await this.restaurants.find({ 
-                isPromoted: true,  
-                promotedUntil: LessThan(new Date()) // SELECT * FROM "post" WHERE "likes" < 10
-            })
+            const restaurants = await this.restaurants.find({ where:{ isPromoted: true,  promotedUntil: LessThan(new Date())}}) // SELECT * FROM "post" WHERE "likes" < 10
+            // const restaurants = await this.restaurants.find({ isPromoted: true,  promotedUntil: LessThan(new Date()) // SELECT * FROM "post" WHERE "likes" < 10
+            
             console.log(restaurants);
             restaurants.forEach(async (restaurant) => {
                 restaurant.isPromoted = false // сброс продвижения // дата окончания продвижения меньше текущей даты означает конец продвижения

@@ -55,14 +55,14 @@ export class RestaurantService {
   /**
    * editRestaurant
    */
-  public async editRestaurant(owner: User, editRestaurantInput: EditRestaurantInput): Promise<EditRestaurantOutput> {
-
+  public async editRestaurant(editRestaurantInput: EditRestaurantInput): Promise<EditRestaurantOutput> {
+    // public async editRestaurant(owner: User, editRestaurantInput: EditRestaurantInput): Promise<EditRestaurantOutput> {
+      console.log("editRestaurant___", editRestaurantInput);
+      // console.log("owner___", owner);
+      
       try {
-        const restaurant = await this.restaurants.findOne(
-          editRestaurantInput.restaurantId, 
-          {loadRelationIds: true}
-          );
-        
+        const restaurant = await this.restaurants.findOne({ where: {id: editRestaurantInput.restaurantId}, loadRelationIds: true })
+
           if(!restaurant){
              return {
                ok: false,
@@ -70,24 +70,30 @@ export class RestaurantService {
              }
           };
 
-        if(owner.id !== restaurant.ownerId) {
-          return {
-            ok: false,
-            error: 'Вы не можете редактировать ресторан, который вам не принадлежит'
-          }
-        }
+        // if(owner.id !== restaurant.ownerId) {
+        //   return {
+        //     ok: false,
+        //     error: 'Вы не можете редактировать ресторан, который вам не принадлежит'
+        //   }
+        // }
 
         let category: Category = null;
         if(editRestaurantInput.categoryName){
           category = await this.categories.getOrCreate(editRestaurantInput.categoryName)
         }
-        await this.restaurants.save([{
-          id: editRestaurantInput.restaurantId,
-          ...editRestaurantInput,
-          ...(category && { category }) /// !!!
-        }])
+        const findRestaurant = await this.restaurants.findOne({ where: { id: editRestaurantInput.restaurantId }});
+        console.log("findRestaurant___", findRestaurant);
+        const data = await this.restaurants.save({...findRestaurant, ...editRestaurantInput})
+        console.log("dd___", data);
+        
+        // await this.restaurants.save([{
+        //   id: editRestaurantInput.restaurantId,
+        //   ...editRestaurantInput,
+        //   ...(category && { category }) /// !!!
+        // }])
         return {
-          ok: true
+          ok: true,
+          isOnlinePay: data.isOnlinePay
         }
         
       } catch (error) {
@@ -105,9 +111,7 @@ export class RestaurantService {
     { restaurantId }: DeleteRestaurantInput
     ): Promise<DeleteRestaurantOutput> {
         try {
-          const restaurant = await this.restaurants.findOne(
-            restaurantId, 
-          );
+          const restaurant = await this.restaurants.findOne({ where: {id: restaurantId}})
           
             if(!restaurant){
                return {
@@ -153,13 +157,12 @@ export class RestaurantService {
    }
 
   public countRestaurant(category: Category) {
-    return this.restaurants.count({ category })
+    return this.restaurants.count({take: category.id})
   } 
 
   public async findCategoryBySlug({ slug, page }: CategoryInput): Promise<CategoryOutput>{
     try {
-      const category = await this.categories.findOne(
-        { slug },
+      const category = await this.categories.findOne( { where: { slug }},
         // { relations: ['restaurants'] } // !!! 
         )
       if(!category){
@@ -168,10 +171,10 @@ export class RestaurantService {
           error: "Категории не существует"
         }        
       };
-
-      const restaurants = await this.restaurants.find({ /// !!! pagination
+/// !!! pagination
+      const restaurants = await this.restaurants.find({ 
          where: {
-          category
+          category: true
         },
         order: {
           isPromoted: 'DESC'
@@ -227,10 +230,8 @@ export class RestaurantService {
     { restaurantId }: RestaurantInput
   ): Promise<RestaurantOutput> {
     try {
-      const restaurant = await this.restaurants.findOne(restaurantId, {
-        relations: ['menu']
-      });
-      if(!restaurant){
+      const restaurant = await this.restaurants.findOne({ where: {id: restaurantId}, relations: ['menu'] });
+      if(!restaurantId){
         return {
           ok: false,
           error: 'Рестаран не существует'
@@ -276,9 +277,7 @@ export class RestaurantService {
     createDishInput: CreateDishInput
     ): Promise<CreateDishOutput> {
       try {
-        const restaurant = await this.restaurants.findOne(
-          createDishInput.restaurantId
-        );
+        const restaurant = await this.restaurants.findOne({ where: { id: createDishInput.restaurantId } });
         if(!restaurant) {
           return {
             ok: false,
@@ -312,9 +311,7 @@ export class RestaurantService {
     editDishInput: EditDishInput
     ): Promise<EditDishOutput> {
       try {
-        const dish = await this.dishes.findOne(editDishInput.dishId, {
-          relations: ['restaurant']
-        })
+        const dish = await this.dishes.findOne({ where: { id: editDishInput.dishId},  relations: ['restaurant'] })
         if(!dish) {
           return {
             ok: false,
@@ -347,9 +344,7 @@ export class RestaurantService {
       { dishId }: DeleteDishInput
       ): Promise<DeleteDishOutput> {
         try {
-          const dish = await this.dishes.findOne(dishId, {
-            relations: ['restaurant']
-          })
+          const dish = await this.dishes.findOne({ where: {id: dishId}, relations: ['restaurant']})
           if(!dish) {
             return {
               ok: false,

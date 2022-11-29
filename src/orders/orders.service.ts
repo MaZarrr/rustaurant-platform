@@ -38,7 +38,8 @@ export class OrderService {
             {restautantId, items}: CreateOrderInput,
         ): Promise<CreateOrderOutput> {
             try {
-                const restaurant = await this.restaurants.findOne(restautantId)
+                const restaurant = await this.restaurants.findOne({ where: { id: restautantId } })
+                // {where: {id: parseInt(req.params.id, 10)}}
                 if(!restaurant) {
                     return {
                         ok: false,
@@ -49,7 +50,7 @@ export class OrderService {
                 let orderFinalPrice = 0; // !!! 124
                 const orderItems: OrderItem[] = [];
                 for(const item of items) {
-                    const dish = await this.dishes.findOne(item.dishId)
+                    const dish = await this.dishes.findOne({ where: { id: item.dishId }} )
                     if(!dish){
                     // прервать все
                         return {
@@ -124,21 +125,21 @@ export class OrderService {
                 if(user.role === UserRole.Client){
                     orders = await this.orders.find({
                         where: {
-                            customer: user,
+                            customer: true,
                             ...(status && { status })
                         }
                     });
                 } else if(user.role === UserRole.Delivery) {
                     orders = await this.orders.find({
                         where: {
-                            driver: user,
+                            driver: true,
                             ...(status && { status })
                         }
                     });
                 } else if(user.role === UserRole.Owner) {
                     const restaurants = await this.restaurants.find({
                         where: {
-                            owner: user
+                            owner: true
                         },
                         // select: ['orders'], // Ошибка: столбец заказов не найден в объекте "Ресторан".
                         relations: ['orders']
@@ -149,6 +150,34 @@ export class OrderService {
                         orders = orders.filter(order => order.status === status)
                     }
                 }
+                // if(user.role === UserRole.Client){
+                //     orders = await this.orders.find({
+                //         where: {
+                //             customer: user,
+                //             ...(status && { status })
+                //         }
+                //     });
+                // } else if(user.role === UserRole.Delivery) {
+                //     orders = await this.orders.find({
+                //         where: {
+                //             driver: user,
+                //             ...(status && { status })
+                //         }
+                //     });
+                // } else if(user.role === UserRole.Owner) {
+                //     const restaurants = await this.restaurants.find({
+                //         where: {
+                //             owner: user
+                //         },
+                //         // select: ['orders'], // Ошибка: столбец заказов не найден в объекте "Ресторан".
+                //         relations: ['orders']
+                //     });
+                //     // console.log(restaurants.map(rest => rest.orders).flat());
+                //     orders = restaurants.map(restaurant => restaurant.orders).flat(1);  
+                //     if(status) {
+                //         orders = orders.filter(order => order.status === status)
+                //     }
+                // }
                 return {
                     ok: true,
                     orders
@@ -166,9 +195,8 @@ export class OrderService {
             { id: orderId }: GetOrderInput
         ): Promise<GetOrderOutput>{
             try {
-                const order = await this.orders.findOne(orderId, {
-                    relations: ['restaurant']
-                });
+                
+                const order = await this.orders.findOne({ where: { id: orderId }, relations: { restaurant: true }} )
                 if(!order){
                     return {
                         ok: false,
@@ -202,7 +230,7 @@ export class OrderService {
                 // const order = await this.orders.findOne(orderId, { /// !!! 138 указано eadger true  в order entity что дает возможность не указывать relations отношения
                 //     relations: ['restaurant', 'customer', 'driver']
                 // });
-                const order = await this.orders.findOne(orderId);
+                const order = await this.orders.findOne({ where: { id: orderId }});
 
                 if(!order) {
                     return {
@@ -296,39 +324,36 @@ export class OrderService {
                 return canSee;
         }
 
-        public async takeOrder(
-            driver: User,
-            {id: orderId}: TakeOrderInput
-        ): Promise<TakeOrderOutput>{
-            try {
-                const order = await this.orders.findOne(orderId)
-                if(!order) {
-                    return {
-                        ok: false,
-                        error: "Заказ не найден"
-                    }
-                };
-                if(order.driver){ /// !!! 140
-                    return {
-                        ok: false,
-                        error: "У этого заказа уже есть водитель"
-                    }
-                }
-                await this.orders.save({
-                    id: orderId,
-                    driver
-                });
-                await this.pubSub.publish(NEW_ORDER_UPDATE, { 
-                    orderUpdates: {...order, driver} });
+        // public async takeOrder(
+        //     driver: User,
+        //     orderInput: TakeOrderInput
+        // ): Promise<TakeOrderOutput>{
+        //     try {
+        //         const order = await this.orders.findOne({ where: { id: orderInput.id } })
+        //         if(!order) {
+        //             return {
+        //                 ok: false,
+        //                 error: "Заказ не найден"
+        //             }
+        //         };
+        //         if(order.driver){ /// !!! 140
+        //             return {
+        //                 ok: false,
+        //                 error: "У этого заказа уже есть водитель"
+        //             }
+        //         }
+        //         await this.orders.save({  { id: orderId, driver} });
+        //         await this.pubSub.publish(NEW_ORDER_UPDATE, { 
+        //             orderUpdates: {...order, driver} });
                 
-                return {
-                    ok: true
-                }
-            } catch (error) {
-                return {
-                    ok: false,
-                    error: "Не удалось обновить заказ."
-                }
-            }
-        }
+        //         return {
+        //             ok: true
+        //         }
+        //     } catch (error) {
+        //         return {
+        //             ok: false,
+        //             error: "Не удалось обновить заказ."
+        //         }
+        //     }
+        // }
     }

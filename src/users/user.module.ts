@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './enities/user.entity';
@@ -5,8 +6,9 @@ import { Verification } from './enities/verification.entity';
 import { UserResolver } from './user.resolver';
 import { UserService } from './user.service';
 
+
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Verification])],
+  imports: [TypeOrmModule.forFeature([User, Verification]), HttpModule],
   providers: [UserResolver, UserService],
   exports: [UserService],
 })

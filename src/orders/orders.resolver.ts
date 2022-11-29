@@ -108,14 +108,14 @@ export class OrderResolver {
         return this.pubSub.asyncIterator(NEW_ORDER_UPDATE)
     }
 
-    @Mutation(returns => TakeOrderOutput)
-    @Role(['Delivery'])
-    public takeOrder( // принять заказ
-        @AuthUser() driver: User,
-        @Args('input') takeOrderInput: TakeOrderInput
-    ): Promise<TakeOrderOutput > {  
-        return this.ordersService.takeOrder(driver, takeOrderInput)
-    }
+    // @Mutation(returns => TakeOrderOutput)
+    // @Role(['Delivery'])
+    // public takeOrder( // принять заказ
+    //     @AuthUser() driver: User,
+    //     @Args('input') takeOrderInput: TakeOrderInput
+    // ): Promise<TakeOrderOutput > {  
+    //     return this.ordersService.takeOrder(driver, takeOrderInput)
+    // }
 }
 
 // own eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjQsImlhdCI6MTYzMTk4MTUyNH0.g4SBEJePEZXHW96qP9pmhRbU5D6OWQu1DGtD9fJsiXA

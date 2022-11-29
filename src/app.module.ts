@@ -28,6 +28,11 @@ import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entities/payments.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ApolloDriver, ApolloDriverConfig, ApolloFederationDriver, ApolloFederationDriverConfig  } from '@nestjs/apollo';
+import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core/dist/plugin';
+// import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
+// import { ApolloDriver, ApolloDriverConfig } from '@nestjs/graphql';
+// import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 
 @Module({
   imports: [
@@ -79,15 +84,18 @@ import { MailerModule } from '@nestjs-modules/mailer';
       },
     }),
     // MongooseModule.forRoot(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`),
-    GraphQLModule.forRoot({
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: 'src/schema.gql',
       installSubscriptionHandlers: true,
-      autoSchemaFile: true,
       context: ({ req, connection }) => { /// !!! 130
         const TOKEN_KEY = 'x-jwt'
         return {
           token: req ? req.headers[TOKEN_KEY] : connection.context[TOKEN_KEY]
         }
       },
+      // playground: false,
+      // plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
     EventEmitterModule.forRoot({
       // set this to `true` to use wildcards
@@ -133,6 +141,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 })
 
 export class AppModule{}
+
 
 // // или app use
 // export class AppModule implements NestModule {

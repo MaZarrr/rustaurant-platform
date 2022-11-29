@@ -1,5 +1,5 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
-import { IsString, Length } from 'class-validator';
+import { IsBoolean, IsString, Length } from 'class-validator';
 import { CoreEntity } from 'src/common/enities/core.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { User } from 'src/users/enities/user.entity';
@@ -31,6 +31,11 @@ export class Restaurant extends CoreEntity {
   @Field(type => Category, { nullable: true })
   @ManyToOne(type => Category, category => category.restaurants, { nullable: true, onDelete: 'SET NULL'})
   category: Category
+
+  @Field(type => Boolean)
+  @Column()
+  @IsBoolean()
+  isOnlinePay: boolean;
 
   @Field(type => User)
   @ManyToOne(

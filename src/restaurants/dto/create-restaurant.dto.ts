@@ -7,7 +7,8 @@ import { Restaurant } from '../enities/restaurant.enities';
 export class CreateRestaurantInput extends PickType(Restaurant, [
     'name', 
     'coverImage',
-    'address'
+    'address',
+    'isOnlinePay'
 ]) {
     @Field(type => String)
     categoryName: string;

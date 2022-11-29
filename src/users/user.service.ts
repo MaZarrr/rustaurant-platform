@@ -13,6 +13,9 @@ import { Verification } from './enities/verification.entity';
 import { VerifyPhoneOutput } from './dto/verify-phone.dto';
 import { UserProfileOutput } from './dto/user-profile.dto';
 import { SmsService } from 'src/sms/sms.service';
+import { HttpService } from '@nestjs/axios';
+import { AxiosResponse } from 'axios';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class UserService {
@@ -22,6 +25,7 @@ export class UserService {
     private readonly verifications: Repository<Verification>,
     private readonly jwtService: JwtService,
     private readonly smsService: SmsService,
+    private readonly httpService: HttpService,
   ) {}
 
   /**
@@ -33,7 +37,7 @@ export class UserService {
     role,
   }: CreateAccountInput): Promise<CreateAccountOutput> {
     try {
-      const exist = await this.users.findOne({ phone });
+      const exist = await this.users.findOne({ where: { phone }});
       if (exist) {
         return {
           ok: false,
@@ -71,6 +75,14 @@ export class UserService {
     }
   }
 
+
+  async nameTest(): Promise<CreateAccountOutput> {
+    // nameTest(params: any): Observable<AxiosResponse<any>> {
+    // return this.httpService.post('http://localhost:3000/getProducts', {
+    //   albumId: "2"
+    // }) as any;
+    return { ok: true };
+  }
 
   // public async createAccount({
   //   phone,
@@ -130,10 +142,7 @@ export class UserService {
     // check if the password is correct
     // make jwt and give it to rhe user
     try {
-      const user = await this.users.findOne(
-        { phone },
-        { select: ['id', 'password'] },
-      );
+      const user = await this.users.findOne({ where: { phone }, select: ['id', 'password']  });
 
       if (!user) {
         return {
@@ -170,7 +179,7 @@ export class UserService {
     // public async findById(id: number): Promise<User> {
     try {
       // const user = await this.users.findOne({ id });
-      const user = await this.users.findOneOrFail({ id });
+      const user = await this.users.findOneOrFail({ where: { id }});
       if (user) {
         return {
           ok: true,
@@ -187,7 +196,7 @@ export class UserService {
     { phone, password }: EditProfileInput,
   ): Promise<EditProfileOutput> {
     try {
-      const user = await this.users.findOne(userId);
+      const user = await this.users.findOne({ where: { id: userId}});
       if (phone) {
         user.phone = phone;
         user.verified = false;
@@ -230,10 +239,7 @@ export class UserService {
     // пользователь отправляет эту мутацию
     // меняется форма на клиенте где мы ожидаем верный код от пользвователя
     try {
-      const verification = await this.verifications.findOne(
-        { code },
-        { relations: ['user'] },
-      );
+      const verification = await this.verifications.findOne({ where: { code },  relations: ['user'] });
 
       if(verification){
       // if (verification.code === code) {
