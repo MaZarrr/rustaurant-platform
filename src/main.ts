@@ -8,6 +8,8 @@ dotenv.config();
 // import cors from 'cors';
 // import { JwtMiddleware } from './jwt/jwt.middleware';
 
+// APP_VERSION: 1.0.1
+
 const optionsCors = {
   origin: "*",
   // origin: "https://svisni-sushi.ru",
